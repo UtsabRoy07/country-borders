@@ -1,0 +1,34 @@
+body {
+    /* width: 100%; */
+    height: 100vh;
+    background-image: url('../images/World_map.jpg');
+    background-size: cover;
+    /* display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; */
+}
+ .container {
+     opacity: 0;
+     transition: opacity 5s;
+ }
+
+ .center {
+     margin: auto;
+     /* padding: 10px; */
+ }
+
+ .paddingLeft {
+     /* margin-left: 70px; */
+     padding-left: 200px;
+ }
+
+ .borderStyle {
+     text-align: center;
+     background-color: lightgrey;
+     color: blue;
+ }
+
+ .head {
+    color: yellow;
+ }

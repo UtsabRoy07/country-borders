@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Country with borders</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/style.css" />
+
+
+    <style type="text/css">
+       
+    </style>
+</head>
+
+<body>
+    <div class="container"></div><br><br>
+    <div class="row" id="borderCountriesRow"></div> <!-- Container for bordering countries -->
+
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="mt-3">
+                <h3 class="head">Country with borders country: </h3>
+                <select class="form-select" id="cn">
+                    <option value="Bangladesh">Bangladesh</option>
+                    <option value="Afghanistan">Afghanistan</option>
+                    <option value="Pakistan">Pakistan</option>
+                    <option value="Uzbekistan">Uzbekistan</option>
+                    <option value="Australia">Australia</option>
+                    <option value="USA">USA</option>
+                    <option value="Brazil">Brazil</option>
+                    <option value="Myanmar">Myanmar</option>
+                    <option value="Japan">Japan</option>
+                    <option value="Argentina">Argentina</option>
+                    <option value="Germany">Germany</option>
+                    <option value="France">France</option>
+                    <option value="Spain">Spain</option>
+                    <option value="Nepal">Nepal</option>
+                    <option value="Bhutan">Bhutan</option>
+                    <option value="Switzerland">Switzerland</option>
+                    <option value="Austria">Austria</option>
+                    <option value="Italy">Italy</option>
+                    <option value="San Marino">San Marino</option>
+                    <option value="Sri Lanka">Sri Lanka</option>
+                    <option value="South Africa">South Africa</option>
+                    <option value="Zimbabwe">Zimbabwe</option>
+                </select>
+            </div> <br>
+            <button id="btn" class="btn btn-success">Find</button>
+            <button style="margin-left: 15px;" id="clear" class="btn btn-danger">Clear</button>
+            <br><br><br>
+        </div>
+    </div>
+
+    <script lang="Javascript">
+        const btn = document.querySelector("#btn");
+        const clear = document.querySelector("#clear");
+        const box = document.querySelector(".container");
+        const cn = document.querySelector("#cn");
+        const borderCountriesRow = document.querySelector("#borderCountriesRow");
+
+        clear.addEventListener("click", () => {
+            box.innerHTML = ""; // Clear previous content
+            borderCountriesRow.innerHTML = ""; // Clear previous border countries
+        });
+
+
+        btn.addEventListener("click", () => {
+            box.innerHTML = ""; // Clear previous content
+            borderCountriesRow.innerHTML = ""; // Clear previous border countries
+
+            const country = cn.value;
+            const url = "https://restcountries.com/v3.1/name/" + country;
+
+            fetch(url)
+                .then(res => res.json())
+                .then(res => {
+                    const data = res[0];
+                    renderHTML(data); // Render the details of the selected country
+                    if (data.borders) {
+                        borderCountriesRow.classList.add("paddingLeft");
+                        const borderCountriesPromises = data.borders.map(bdr => {
+                            const urlBdr = "https://restcountries.com/v3.1/alpha/" + bdr;
+                            return fetch(urlBdr)
+                                .then(res => res.json());
+                        });
+
+                        Promise.all(borderCountriesPromises)
+                            .then(borderCountries => {
+                                // Render the borders of the selected country in a single row
+                                borderCountries.forEach(borderCountry => {
+                                    renderHTML(borderCountry[0], true);
+                                });
+                            });
+                    }
+                    else {
+                        const html = `<h4 class='borderStyle'>${data.name.common} have no borders</h4>`
+                        borderCountriesRow.insertAdjacentHTML('beforeend', html);
+                    }
+                });
+        });
+
+        // functions
+        function renderHTML(data, border = false) {
+            const html = `
+                <div class='col-4 center'>
+                    <div class='card ${border ? 'w-50 border border-dark border-2' : 'border border-info border-2'}'>
+                        <img src=${data.flags.png} >
+                        <div class='card-body'>
+                            <div class='card-title'><b>${data.name.common}</b></div>
+                            <ul>
+                                <li>Population: ${data.population}</li>
+                                <li>Capital: ${data.capital[0]}</li>
+                                <li>Currency: ${Object.keys(data.currencies)[0]}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                `;
+
+            if (border) {
+                borderCountriesRow.insertAdjacentHTML('beforeend', html);
+
+                // Use setTimeout to trigger the fade-in effect after the HTML is added to the DOM
+                setTimeout(() => {
+                    const borderCountryCards = borderCountriesRow.querySelectorAll('.card');
+                    borderCountryCards.forEach((card) => {
+                        card.style.opacity = 0; // Set initial opacity to 0
+                        setTimeout(() => {
+                            card.style.opacity = 1; // Fade in by setting opacity to 1
+                            card.style.transition = 'opacity 5s'; // Set initial opacity to 0
+                        }, 2000);
+                    });
+                }, 10);
+            } else {
+                box.insertAdjacentHTML('beforeend', html);
+                box.style.opacity = 1;
+            }
+        }
+    </script>
+</body>
+
+</html>
